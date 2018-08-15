@@ -1,23 +1,26 @@
 import React from 'react'
-
-const Message = ({id, subject, read, starred, labels}) => {
+import Labels from './Labels'
+const Message = ({id, subject, read, starred, labels, selected, starMessage, selectMessage}) => {
     const isRead = read ? 'read' : 'unread'
     const isStarred = starred ? 'fa-star': 'fa-star-o'
+    const isSelected = selected ? 'selected' : ''
+    const isChecked = selected ? 'checked' : ''
 
     return(
-            <div className={`row message ${isRead}`}>
+            <div className={`row message ${isRead} ${isSelected}`}>
                 <div className="col-xs-1">
                     <div className="row">
                         <div className="col-xs-2">
-                            <input type="checkbox" />
+                        <input onClick={() => selectMessage(id)} type="checkbox" checked={`${isChecked}`} />
                         </div>
                         <div className="col-xs-2">
-                        <i className={`star fa ${isStarred}`}></i>
+                        <i onClick={() => starMessage(id)} className={`star fa ${isStarred}`}></i>
                         </div>
                     </div>
                 </div>
+                <Labels labels={labels} />
                 <div className="col-xs-11">
-                    <a href="#">
+                    <a href="">
                         {subject}
                     </a>
                 </div>
