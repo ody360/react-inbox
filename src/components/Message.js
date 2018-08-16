@@ -11,7 +11,7 @@ const Message = ({id, subject, read, starred, labels, selected, starMessage, sel
                 <div className="col-xs-1">
                     <div className="row">
                         <div className="col-xs-2">
-                        <input onClick={() => selectMessage(id)} type="checkbox" checked={`${isChecked}`} />
+                        <input onClick={() => selectMessage(id)} type="checkbox" onChange={() => (id)} checked={`${isChecked}`} />
                         </div>
                         <div className="col-xs-2">
                         <i onClick={() => starMessage(id)} className={`star fa ${isStarred}`}></i>

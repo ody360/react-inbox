@@ -5,19 +5,31 @@ class Toolbar extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            quantity: ''
+            selectionStatus : ''
         }
+
+        
     }
 
     onClick = (e) => {
         // Cycle button to select all or none
         this.props.cycleSelection()
+        
 
     }
+
+    onChange = (e) => {
+        console.log('E',e)
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+    
 
 
    // const msgSelectStatus = ''
     render() {
+   //     const isSelected = (this.props.toolbar.selectionStatus === 'selectAll') ? 'check-' : ''
         
         return (
 
@@ -29,7 +41,7 @@ class Toolbar extends Component {
                 </p>
 
                 <button className="btn btn-default">
-                        <i onClick={this.onClick} className="fa fa-square-o"></i>
+                        <i onChange={this.onChange} onClick={this.onClick} className={`fa fa-square-o`}></i>
                 </button>
 
                 <button className="btn btn-default">

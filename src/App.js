@@ -67,7 +67,11 @@ class App extends Component {
           "starred": true,
           "labels": []
         }
-      ]
+      ],
+      toolbar: [{ 
+                  id: 1, 
+                  selectAll: false
+              }]
     }
   }
 
@@ -94,14 +98,24 @@ class App extends Component {
     })
   }
 
-  cycleSelection = () => {
+  cycleSelection = (id) => {
     const allMessages = Array.from(this.state.messages)
-    allMessages.forEach((m) => m.selected = true)
-    console.log('ALLMSGS TRUE', allMessages)
+    const allStatus = Array.from(this.state.toolbar)
+    console.log(allStatus)
 
-    this.setState({
-      messages: allMessages
-    })
+    if(this.state.toolbar[0].selectAll === false) {
+      allMessages.forEach((m) => m.selected = true)
+      allStatus.forEach((s) => s.selectAll = true)
+
+      console.log('ALLSTATUS:' ,allStatus)
+      this.setState({messages: allMessages})
+      this.setState({toolbar: allStatus})
+    } else {
+      allMessages.forEach((m) => m.selected = false)
+      allStatus.forEach((s) => s.selectAll = false)
+      this.setState({messages: allMessages})
+      this.setState({ toolbar: allStatus })
+    }
   }
 
 
