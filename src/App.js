@@ -67,12 +67,9 @@ class App extends Component {
           "starred": true,
           "labels": []
         }
-      ],
-      toolbar: [{ 
-                  id: 1, 
-                  selectAll: false
-              }]
+      ]
     }
+
   }
 
   selectMessage = (id) => {
@@ -98,33 +95,110 @@ class App extends Component {
     })
   }
 
-  cycleSelection = (id) => {
-    const allMessages = Array.from(this.state.messages)
-    const allStatus = Array.from(this.state.toolbar)
-    console.log(allStatus)
 
-    if(this.state.toolbar[0].selectAll === false) {
-      allMessages.forEach((m) => m.selected = true)
-      allStatus.forEach((s) => s.selectAll = true)
+  selectAll = () => {
+    const allMessages = this.state.messages.every(message => message.selected === true)
 
-      console.log('ALLSTATUS:' ,allStatus)
-      this.setState({messages: allMessages})
-      this.setState({toolbar: allStatus})
-    } else {
-      allMessages.forEach((m) => m.selected = false)
-      allStatus.forEach((s) => s.selectAll = false)
-      this.setState({messages: allMessages})
-      this.setState({ toolbar: allStatus })
-    }
+    const highlightedMsgs = this.state.messages.map(message => {
+      allMessages ? delete message.selected : message.selected = true
+      return message;
+    });
+
+    this.setState({
+      messages: highlightedMsgs
+    })
   }
 
+  markReadStatus = () => {
+    const readMsg = this.state.messages.map((m) => {
+      if (m.selected === true) {
+        m.read = true
+        m.selected = false
+      }
+        return m
+    })
+    console.log('READMSG',readMsg)
+    this.setState({
+      messages: readMsg
+    })
 
+  }
+
+  markUnReadStatus = () => {
+    const readMsg = this.state.messages.map((m) => {
+      if (m.selected === true) {
+        m.read = false
+        m.selected = false
+      }
+      return m
+    })
+    this.setState({
+      messages: readMsg
+    })
+
+  }
+
+  deleteMessage = () => {
+    const toDelete = this.state.messages.filter((m) => m.selected !== true)
+  
+    this.setState({
+      messages: toDelete
+    })
+  }
+  
+
+  addLabel = (label) => {
+    const labelMsg = this.state.messages.map((m) => {
+      if (m.selected === true) {
+        if(!m.labels.includes(label)) {
+          m.labels.push(label)
+        }
+      }
+      return m
+    })
+    this.setState({
+      messages: labelMsg
+    })
+  }
+
+  removeLabel = (label) => {
+    const labelMsg = this.state.messages.map((m) => {
+      if (m.selected === true) {
+        if(m.labels.includes(label)) {
+          const idx = m.labels.indexOf(label)
+          m.labels.splice(idx, 1)
+        }
+      }
+      return m
+    })
+      this.setState({
+      messages: labelMsg
+    })
+  }
+
+  getUnreadCount = () => {
+    const unReadArray = this.state.messages.filter((m) => { return m.read === false })    
+    return unReadArray.length
+  }
 
   render() {
     return (
       <div className="container">
-        <Toolbar cycleSelection={this.cycleSelection} />
-        <MessageList messages={this.state.messages} selectMessage={this.selectMessage} starMessage={this.starMessage}/>
+        <Toolbar 
+          messages={this.state.messages} 
+          selectAll={this.selectAll} 
+          markReadStatus={this.markReadStatus} 
+          markUnReadStatus={this.markUnReadStatus} 
+          deleteMessage={this.deleteMessage} 
+          addLabel={this.addLabel} 
+          removeLabel={this.removeLabel} 
+          getUnreadCount={this.getUnreadCount}
+        />
+        <MessageList 
+          messages={this.state.messages} 
+          selectMessage={this.selectMessage} 
+          starMessage={this.starMessage}
+        />
       </div>
     );
   }

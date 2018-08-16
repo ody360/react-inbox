@@ -5,69 +5,84 @@ class Toolbar extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            selectionStatus : ''
+            unread: props.getUnreadCount()
         }
-
-        
     }
 
-    onClick = (e) => {
-        // Cycle button to select all or none
-        this.props.cycleSelection()
-        
-
-    }
-
-    onChange = (e) => {
-        console.log('E',e)
+    addNewLabel = (e) => {
+        this.props.addLabel(e.target.value)
         this.setState({
             [e.target.name]: e.target.value
         })
     }
+
+    removeLabel = (e) => {
+        this.props.removeLabel(e.target.value)
+        this.setState({
+            [e.target.name]: e.target.value
+        })
+    }
+
+
+    checkMessage = (messages) => {
+        const all = messages.every((m) =>  m.selected === true )
+        const some = messages.some((m) => m.selected === true)
+        
+        if (all) return "fa fa-check-square-o"
+        else if (some) return "fa fa-minus-square-o"
+        else return "fa fa-square-o"
+    }
+
+    pluralMessage = () => {
+        if(this.props.getUnreadCount() === 1) {
+            return 'unread message'
+        } else {
+            return 'unread messages'
+        }
+    }
+
     
 
-
-   // const msgSelectStatus = ''
     render() {
-   //     const isSelected = (this.props.toolbar.selectionStatus === 'selectAll') ? 'check-' : ''
+      
         
         return (
 
         <div className="row toolbar">
             <div className="col-md-12">
                 <p className="pull-right">
-                    <span className="badge badge">2</span>
-                    unread messages
+                        <span className="badge badge">{this.props.getUnreadCount()}</span>
+                    {this.pluralMessage()}
                 </p>
 
-                <button className="btn btn-default">
-                        <i onChange={this.onChange} onClick={this.onClick} className={`fa fa-square-o`}></i>
+                    <button className="btn btn-default" onClick={this.props.selectAll}>
+                        <i onChange={this.onChange} className={this.checkMessage(this.props.messages)}></i>
                 </button>
 
-                <button className="btn btn-default">
+                    <button className="btn btn-default" onClick={this.props.markReadStatus}>
                     Mark As Read
                 </button>
 
-                <button className="btn btn-default">
+                    <button className="btn btn-default" onClick={this.props.markUnReadStatus}>
                     Mark As Unread
                 </button>
 
-                <select className="form-control label-select">
+                    <select className="form-control label-select" onChange={this.addNewLabel}>
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <select className="form-control label-select">
+                    <select className="form-control label-select" onChange={this.removeLabel}>
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <button className="btn btn-default">
-                    <i className="fa fa-trash-o"></i>
+                    <button className="btn btn-default" onClick={this.props.deleteMessage}>
+                        <i className="fa fa-trash-o" ></i>
                 </button>
             </div>
         </div>
