@@ -2,7 +2,24 @@ import React, { Component } from 'react'
 
 
 class Toolbar extends Component {
-    render() {return (
+    constructor(props) {
+        super(props)
+        this.state = {
+            quantity: ''
+        }
+    }
+
+    onClick = (e) => {
+        // Cycle button to select all or none
+        this.props.cycleSelection()
+
+    }
+
+
+   // const msgSelectStatus = ''
+    render() {
+        
+        return (
 
         <div className="row toolbar">
             <div className="col-md-12">
@@ -12,7 +29,7 @@ class Toolbar extends Component {
                 </p>
 
                 <button className="btn btn-default">
-                    <i className="fa fa-check-square-o"></i>
+                        <i onClick={this.onClick} className="fa fa-square-o"></i>
                 </button>
 
                 <button className="btn btn-default">

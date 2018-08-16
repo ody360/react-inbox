@@ -94,12 +94,22 @@ class App extends Component {
     })
   }
 
+  cycleSelection = () => {
+    const allMessages = Array.from(this.state.messages)
+    allMessages.forEach((m) => m.selected = true)
+    console.log('ALLMSGS TRUE', allMessages)
+
+    this.setState({
+      messages: allMessages
+    })
+  }
+
 
 
   render() {
     return (
       <div className="container">
-        <Toolbar />
+        <Toolbar cycleSelection={this.cycleSelection} />
         <MessageList messages={this.state.messages} selectMessage={this.selectMessage} starMessage={this.starMessage}/>
       </div>
     );
