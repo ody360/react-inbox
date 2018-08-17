@@ -97,15 +97,14 @@ class App extends Component {
 
 
   selectAll = () => {
-    const allMessages = this.state.messages.every(message => message.selected === true)
-
-    const highlightedMsgs = this.state.messages.map(message => {
+  
+    const allMessages = this.state.messages.map(message => {
       allMessages ? delete message.selected : message.selected = true
       return message;
     });
 
     this.setState({
-      messages: highlightedMsgs
+      messages: allMessages
     })
   }
 
@@ -181,6 +180,8 @@ class App extends Component {
     return unReadArray.length
   }
 
+  
+
   render() {
     return (
       <div className="container">
@@ -193,6 +194,7 @@ class App extends Component {
           addLabel={this.addLabel} 
           removeLabel={this.removeLabel} 
           getUnreadCount={this.getUnreadCount}
+          
         />
         <MessageList 
           messages={this.state.messages} 

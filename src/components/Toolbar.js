@@ -41,6 +41,14 @@ class Toolbar extends Component {
         }
     }
 
+    disableButton = () => {
+        const disableBtn = this.props.messages.every(message => message.selected === false)
+        return disableBtn ? 'disabled' : ''
+
+    }
+
+   
+
     
 
     render() {
@@ -59,29 +67,29 @@ class Toolbar extends Component {
                         <i onChange={this.onChange} className={this.checkMessage(this.props.messages)}></i>
                 </button>
 
-                    <button className="btn btn-default" onClick={this.props.markReadStatus}>
+                    <button className="btn btn-default" disabled={this.disableButton()} onClick={this.props.markReadStatus}>
                     Mark As Read
                 </button>
 
-                    <button className="btn btn-default" onClick={this.props.markUnReadStatus}>
+                    <button className="btn btn-default" disabled={this.disableButton()} onClick={this.props.markUnReadStatus}>
                     Mark As Unread
                 </button>
 
-                    <select className="form-control label-select" onChange={this.addNewLabel}>
+                    <select className="form-control label-select" disabled={this.disableButton()} onChange={this.addNewLabel}>
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                    <select className="form-control label-select" onChange={this.removeLabel}>
+                    <select className="form-control label-select" disabled={this.disableButton()} onChange={this.removeLabel}>
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                    <button className="btn btn-default" onClick={this.props.deleteMessage}>
+                    <button className="btn btn-default" disabled={this.disableButton()} onClick={this.props.deleteMessage}>
                         <i className="fa fa-trash-o" ></i>
                 </button>
             </div>
