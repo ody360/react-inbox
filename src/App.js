@@ -13,7 +13,8 @@ class App extends Component {
           "id": '',
           "subject": '',
           "read":false, 
-          "starred":false, 
+          "starred":false,
+          "selected":false,
           "labels": []
         }]
       // [ 
@@ -76,44 +77,67 @@ class App extends Component {
       //     "labels": []
       //   }
       // ]
+
+      // //{
+          //Body format for star command
+    	// "messageIds": [1, 3],
+      // "command": "star"
+
     }
 
   }
 
   componentDidMount() {
     this.getMessages()
+    this.selectMessage()
   }
 
   getMessages = async () => {
     const res = await axios.get('http://localhost:8082/api/messages')
-    console.log(res.data)
     this.setState({
       messages: res.data
     })
   }
 
-  selectMessage = (id) => {
-    const newMsg = this.state.messages.map((m) => {
-      if(m.id === id) m.selected =!m.selected
-        return m
-    })
-      
-    this.setState({
-      messages: newMsg
+  selectMessage = async (id) => {
+    let msgIds = []
+    const resGet = await axios.get('http://localhost:8082/api/messages')
+    resGet.data.map((m) => {
+      if (m.id === id) msgIds.push(m.id)
+      return m
     })
 
+    const body = {
+      "messageIds": msgIds,
+      "command": `selected`
+    }
+    console.log(body)
+    const res = await axios.patch('http://localhost:8082/api/messages', body)
+    this.setState({
+      messages: res.data
+    })
   }
   
 
-  starMessage = (id) => {
-    const newMsg = this.state.messages.map((m) => {
-      if(m.id === id) m.starred = !m.starred
-      return m
-    })
-    this.setState({
-      messages: newMsg
-    })
-  }
+  starMessage = async (id) => {
+    let msgIds = []
+    const resGet = await axios.get('http://localhost:8082/api/messages')
+    resGet.data.map((m) => {
+      if (m.id === id) msgIds.push(m.id)
+        return m
+      })
+     
+      const body = {
+        "messageIds": msgIds,
+        "command": `star`
+      }
+      console.log(body)
+      const res = await axios.patch('http://localhost:8082/api/messages',body)
+      this.setState({
+        messages: res.data
+      })
+    }
+
 
 
   selectAll = () => {
@@ -129,17 +153,23 @@ class App extends Component {
     })
   }
 
-  markReadStatus = () => {
-    const readMsg = this.state.messages.map((m) => {
+  markReadStatus = async () => {
+    let msgIds = []
+    this.state.messages.map((m) => {
       if (m.selected === true) {
-        m.read = true
-        m.selected = false
+        msgIds.push(m.id)
       }
-        return m
+      return m
     })
-    console.log('READMSG',readMsg)
+
+    const body = {
+      "messageIds": msgIds,
+      "command": "read"
+    }
+
+    const res = await axios.patch('http://localhost:8082/api/messages', body)
     this.setState({
-      messages: readMsg
+      messages: res.data
     })
 
   }
@@ -158,13 +188,26 @@ class App extends Component {
 
   }
 
-  deleteMessage = () => {
-    const toDelete = this.state.messages.filter((m) => m.selected !== true)
-  
+  deleteMessage = async () => {
+    const msgIds = this.state.messages.filter((m) => m.selected === true).map(x => x.id)
+    console.log('DEL:', msgIds)
+    const body = {
+
+      "messageIds": msgIds,
+      "command": "delete"
+
+    } 
+    console.log(body)
+    const res = await axios.patch('http://localhost:8082/api/messages', body)
+   // console.log(res, this.state.messages)
+    console.log('RESPONSE IS:' , res)
     this.setState({
-      messages: toDelete
+      messages: res.data
     })
   }
+
+
+
   
 
   addLabel = (label) => {
