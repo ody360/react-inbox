@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+//import axios from 'axios'
 
 
 class Toolbar extends Component {
@@ -9,13 +10,7 @@ class Toolbar extends Component {
         }
     }
 
-    addNewLabel = (e) => {
-        this.props.addLabel(e.target.value)
-        this.setState({
-            [e.target.name]: e.target.value
-        })
-    }
-
+    
     removeLabel = (e) => {
         this.props.removeLabel(e.target.value)
         this.setState({
@@ -47,13 +42,10 @@ class Toolbar extends Component {
 
     }
 
-   
 
     
 
-    render() {
-      
-        
+    render() {        
         return (
 
         <div className="row toolbar">
@@ -62,6 +54,10 @@ class Toolbar extends Component {
                         <span className="badge badge">{this.props.getUnreadCount()}</span>
                     {this.pluralMessage()}
                 </p>
+
+                    <a className="btn btn-danger" onClick={this.props.toggleForm}>
+                        <i className="fa fa-plus"></i>
+                    </a>
 
                     <button className="btn btn-default" onClick={this.props.selectAll}>
                         <i onChange={this.onChange} className={this.checkMessage(this.props.messages)}></i>
@@ -75,14 +71,14 @@ class Toolbar extends Component {
                     Mark As Unread
                 </button>
 
-                    <select className="form-control label-select" disabled={this.disableButton()} onChange={this.addNewLabel}>
+                    <select className="form-control label-select" key= {this.props.messages.id} disabled={this.disableButton()} onChange={this.props.addNewLabel}>
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                    <select className="form-control label-select" disabled={this.disableButton()} onChange={this.removeLabel}>
+                    <select className="form-control label-select" disabled={this.disableButton()} onChange={this.props.removeLabel}>
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>

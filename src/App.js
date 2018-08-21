@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Toolbar from './components/Toolbar';
 import MessageList from './components/MessageList'
+import MessageForm from './components/MessageForm'
 import axios from 'axios'
 
 
@@ -15,73 +16,12 @@ class App extends Component {
           "read":false, 
           "starred":false,
           "selected":false,
-          "labels": []
-        }]
-      // [ 
-      //   {
-      //     "id": 1,
-      //     "subject": "You can't input the protocol without calculating the mobile RSS protocol!",
-      //     "read": false,
-      //     "starred": true,
-      //     "labels": ["dev", "personal"]
-      //   },
-      //   {
-      //     "id": 2,
-      //     "subject": "connecting the system won't do anything, we need to input the mobile AI panel!",
-      //     "read": false,
-      //     "starred": false,
-      //     "selected": true,
-      //     "labels": []
-      //   },
-      //   {
-      //     "id": 3,
-      //     "subject": "Use the 1080p HTTP feed, then you can parse the cross-platform hard drive!",
-      //     "read": false,
-      //     "starred": true,
-      //     "labels": ["dev"]
-      //   },
-      //   {
-      //     "id": 4,
-      //     "subject": "We need to program the primary TCP hard drive!",
-      //     "read": true,
-      //     "starred": false,
-      //     "selected": true,
-      //     "labels": []
-      //   },
-      //   {
-      //     "id": 5,
-      //     "subject": "If we override the interface, we can get to the HTTP feed through the virtual EXE interface!",
-      //     "read": false,
-      //     "starred": false,
-      //     "labels": ["personal"]
-      //   },
-      //   {
-      //     "id": 6,
-      //     "subject": "We need to back up the wireless GB driver!",
-      //     "read": true,
-      //     "starred": true,
-      //     "labels": []
-      //   },
-      //   {
-      //     "id": 7,
-      //     "subject": "We need to index the mobile PCI bus!",
-      //     "read": true,
-      //     "starred": false,
-      //     "labels": ["dev", "personal"]
-      //   },
-      //   {
-      //     "id": 8,
-      //     "subject": "If we connect the sensor, we can get to the HDD port through the redundant IB firewall!",
-      //     "read": true,
-      //     "starred": true,
-      //     "labels": []
-      //   }
-      // ]
+          "labels": [],
+          "body": ''
+        }],
+        composedOn: false,
+        showBody: false
 
-      // //{
-          //Body format for star command
-    	// "messageIds": [1, 3],
-      // "command": "star"
 
     }
 
@@ -111,7 +51,6 @@ class App extends Component {
       "messageIds": msgIds,
       "command": `selected`
     }
-    console.log(body)
     const res = await axios.patch('http://localhost:8082/api/messages', body)
     this.setState({
       messages: res.data
@@ -121,8 +60,8 @@ class App extends Component {
 
   starMessage = async (id) => {
     let msgIds = []
-    const resGet = await axios.get('http://localhost:8082/api/messages')
-    resGet.data.map((m) => {
+    const resGet = this.state
+    resGet.messages.map((m) => {
       if (m.id === id) msgIds.push(m.id)
         return m
       })
@@ -131,7 +70,6 @@ class App extends Component {
         "messageIds": msgIds,
         "command": `star`
       }
-      console.log(body)
       const res = await axios.patch('http://localhost:8082/api/messages',body)
       this.setState({
         messages: res.data
@@ -161,29 +99,38 @@ class App extends Component {
       }
       return m
     })
-
     const body = {
       "messageIds": msgIds,
-      "command": "read"
+      "command": "read",
+      "read" : true
     }
 
     const res = await axios.patch('http://localhost:8082/api/messages', body)
+    console.log('RES',res)
     this.setState({
       messages: res.data
     })
 
   }
 
-  markUnReadStatus = () => {
-    const readMsg = this.state.messages.map((m) => {
+  markUnReadStatus = async () => {
+    let msgIds = []
+    this.state.messages.map((m) => {
       if (m.selected === true) {
-        m.read = false
-        m.selected = false
+        msgIds.push(m.id)
       }
       return m
     })
+    const body = {
+      "messageIds": msgIds,
+      "command": "read",
+      "read": false
+    }
+
+    const res = await axios.patch('http://localhost:8082/api/messages', body)
+    console.log('RES', res)
     this.setState({
-      messages: readMsg
+      messages: res.data
     })
 
   }
@@ -199,49 +146,106 @@ class App extends Component {
     } 
     console.log(body)
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-   // console.log(res, this.state.messages)
     console.log('RESPONSE IS:' , res)
     this.setState({
       messages: res.data
     })
   }
 
+  messageForm = () => {
+
+  }
+
+  postMessage = async (e) => {
+    e.preventDefault()
+
+    const msgList = this.state.messages
+    const body = {
+   
+      "subject": e.target.subject.value,
+      "body": e.target.body.value,
+      "read": false,
+      "starred": false,
+      "selected": false,
+      "labels": []
+    }
+
+    
+  //  console.log ('TRYING TO POST:', [...msgList, newMsg])
+  
+    const res = await axios.post('http://localhost:8082/api/messages', body)
+    this.setState({
+      "messages": [...msgList, res.data]
+      
+    })
+    this.toggleForm()
+  }
 
 
   
 
-  addLabel = (label) => {
-    const labelMsg = this.state.messages.map((m) => {
-      if (m.selected === true) {
-        if(!m.labels.includes(label)) {
-          m.labels.push(label)
-        }
-      }
-      return m
-    })
+  addNewLabel = async (e) => {
+    const msgIds = this.state.messages.filter((m) => m.selected === true).map(x => x.id)
+    const body = {
+
+      "messageIds": msgIds,
+      "command": "addLabel",
+      "label": e.target.value
+
+    }
+    const res = await axios.patch('http://localhost:8082/api/messages', body)
     this.setState({
-      messages: labelMsg
+      "messages": res.data
     })
   }
 
-  removeLabel = (label) => {
-    const labelMsg = this.state.messages.map((m) => {
-      if (m.selected === true) {
-        if(m.labels.includes(label)) {
-          const idx = m.labels.indexOf(label)
-          m.labels.splice(idx, 1)
-        }
-      }
-      return m
-    })
-      this.setState({
-      messages: labelMsg
+
+  removeLabel = async (e) => {
+    const msgIds = this.state.messages.filter((m) => m.selected === true).map(x => x.id)
+    const body = {
+
+      "messageIds": msgIds,
+      "command": "removeLabel",
+      "label": e.target.value
+
+    }
+    const res = await axios.patch('http://localhost:8082/api/messages', body)
+    this.setState({
+      "messages": res.data
     })
   }
 
   getUnreadCount = () => {
     const unReadArray = this.state.messages.filter((m) => { return m.read === false })    
     return unReadArray.length
+  }
+
+  toggleForm = () => {
+    this.setState({
+      composedOn: !this.state.composedOn
+    })
+  }
+
+  toggleBody = (id) => {
+    this.messageBody(id)
+    this.setState({
+      showBody: !this.state.showBody
+      
+    })
+  }
+
+  messageBody = (id) => {
+    const resGet = this.state.messages
+    resGet.messages.map((m) => {
+      return m
+    })
+    return (
+      <div className="row message-body">
+        <div className="col-xs-11 col-xs-offset-1">
+          {this.state.body}
+        </div>
+      </div>
+    )
   }
 
   
@@ -255,17 +259,25 @@ class App extends Component {
           markReadStatus={this.markReadStatus} 
           markUnReadStatus={this.markUnReadStatus} 
           deleteMessage={this.deleteMessage} 
-          addLabel={this.addLabel} 
+          addNewLabel={this.addNewLabel} 
           removeLabel={this.removeLabel} 
           getUnreadCount={this.getUnreadCount}
+          toggleForm={this.toggleForm}
           
         />
+        {this.state.composedOn && <MessageForm postMessage={this.postMessage}/>}
+      <div>
+          
+      </div>
         <MessageList 
           messages={this.state.messages} 
           selectMessage={this.selectMessage} 
           starMessage={this.starMessage}
+          messageBody={this.MessageBody}
+          toggleBody={this.toggleBody}
         />
       </div>
+      
     );
   }
 }
