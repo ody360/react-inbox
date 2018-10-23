@@ -17,10 +17,14 @@ class App extends Component {
           "starred":false,
           "selected":false,
           "labels": [],
-          "body": ''
+          "body": '',
+          "toggled": false,
+          
+          
         }],
+        
         composedOn: false,
-        showBody: false
+     
 
 
     }
@@ -33,16 +37,27 @@ class App extends Component {
   }
 
   getMessages = async () => {
+    const toggled = this.state.messages.filter((m) => m.toggled === true).map((m) => m.id)
     const res = await axios.get('http://localhost:8082/api/messages')
+    
+    const toggleMessages = res.data.map((m) => {
+      if(toggled.includes(m.id)) {
+        m.toggled = true
+      } else {
+        m.toggled = false
+      }
+      
+      return m
+    })
     this.setState({
-      messages: res.data
+      messages: toggleMessages
     })
   }
 
   selectMessage = async (id) => {
     let msgIds = []
-    const resGet = await axios.get('http://localhost:8082/api/messages')
-    resGet.data.map((m) => {
+    const resGet = this.state.messages
+    resGet.map((m) => {
       if (m.id === id) msgIds.push(m.id)
       return m
     })
@@ -52,9 +67,8 @@ class App extends Component {
       "command": `selected`
     }
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-    this.setState({
-      messages: res.data
-    })
+    if (res) this.getMessages()
+   
   }
   
 
@@ -71,9 +85,7 @@ class App extends Component {
         "command": `star`
       }
       const res = await axios.patch('http://localhost:8082/api/messages',body)
-      this.setState({
-        messages: res.data
-      })
+      if(res) this.getMessages()
     }
 
 
@@ -83,12 +95,13 @@ class App extends Component {
 
     const highlightedMsgs = this.state.messages.map(message => {
       allMessages ? delete message.selected : message.selected = true
-      return message;
+      return message
     });
 
     this.setState({
       messages: highlightedMsgs
     })
+    
   }
 
   markReadStatus = async () => {
@@ -106,10 +119,7 @@ class App extends Component {
     }
 
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-    console.log('RES',res)
-    this.setState({
-      messages: res.data
-    })
+    if (res) this.getMessages()
 
   }
 
@@ -128,33 +138,24 @@ class App extends Component {
     }
 
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-    console.log('RES', res)
-    this.setState({
-      messages: res.data
-    })
+    if (res) this.getMessages()
 
   }
 
   deleteMessage = async () => {
     const msgIds = this.state.messages.filter((m) => m.selected === true).map(x => x.id)
-    console.log('DEL:', msgIds)
     const body = {
 
       "messageIds": msgIds,
       "command": "delete"
 
     } 
-    console.log(body)
+
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-    console.log('RESPONSE IS:' , res)
-    this.setState({
-      messages: res.data
-    })
+
+    if (res) this.getMessages()
   }
 
-  messageForm = () => {
-
-  }
 
   postMessage = async (e) => {
     e.preventDefault()
@@ -167,14 +168,14 @@ class App extends Component {
       "read": false,
       "starred": false,
       "selected": false,
-      "labels": []
+      "labels": [],
+      "toggled": false,
     }
 
-    
-  //  console.log ('TRYING TO POST:', [...msgList, newMsg])
   
     const res = await axios.post('http://localhost:8082/api/messages', body)
     this.setState({
+      ...this.state,
       "messages": [...msgList, res.data]
       
     })
@@ -194,9 +195,7 @@ class App extends Component {
 
     }
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-    this.setState({
-      "messages": res.data
-    })
+    if (res) this.getMessages()
   }
 
 
@@ -210,9 +209,7 @@ class App extends Component {
 
     }
     const res = await axios.patch('http://localhost:8082/api/messages', body)
-    this.setState({
-      "messages": res.data
-    })
+    if (res) this.getMessages()
   }
 
   getUnreadCount = () => {
@@ -227,28 +224,15 @@ class App extends Component {
   }
 
   toggleBody = (id) => {
-    this.messageBody(id)
-    this.setState({
-      showBody: !this.state.showBody
-      
-    })
-  }
-
-  messageBody = (id) => {
-    const resGet = this.state.messages
-    resGet.messages.map((m) => {
+    const toggleMsg = this.state.messages.map((m) => {
+      if(m.id === id) {
+        m.toggled = !m.toggled
+      }
       return m
     })
-    return (
-      <div className="row message-body">
-        <div className="col-xs-11 col-xs-offset-1">
-          {this.state.body}
-        </div>
-      </div>
-    )
-  }
 
-  
+    this.setState({messages: toggleMsg})
+  }
 
   render() {
     return (
@@ -273,9 +257,9 @@ class App extends Component {
           messages={this.state.messages} 
           selectMessage={this.selectMessage} 
           starMessage={this.starMessage}
-          messageBody={this.MessageBody}
           toggleBody={this.toggleBody}
         />
+        
       </div>
       
     );

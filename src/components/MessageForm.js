@@ -9,7 +9,6 @@ class MessageForm extends Component {
         })
     }
 
-
     render () {
         return (
                 <form onSubmit={this.props.postMessage} className="form-horizontal well">
