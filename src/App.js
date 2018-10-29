@@ -55,19 +55,14 @@ class App extends Component {
   }
 
   selectMessage = async (id) => {
-    let msgIds = []
-    const resGet = this.state.messages
-    resGet.map((m) => {
-      if (m.id === id) msgIds.push(m.id)
-      return m
-    })
+    let tempState = this.state.messages
 
-    const body = {
-      "messageIds": msgIds,
-      "command": `selected`
-    }
-    const res = await axios.patch('http://localhost:8082/api/messages', body)
-    if (res) this.getMessages()
+    tempState.map((m) => {
+      if (m.id === id) m.selected = !m.selected
+    })
+    console.log('TEMPSTATE IS: ', tempState)
+    this.setState(tempState)
+   
    
   }
   

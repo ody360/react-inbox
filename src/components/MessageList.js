@@ -3,6 +3,7 @@ import Message from './Message'
 import Body from './Body'
 
 const MessageList = ({ messages, body, starMessage, selectMessage, toggleBody}) => {
+    console.log('MESSAGELIST:  ', messages)
     const displayMessages = messages.map((m) => {
         return (<div key={m.id}>
             <Message key={m.id+m.title} selectMessage={selectMessage} body={body} starMessage={starMessage} toggleBody={toggleBody} {...m}/>
